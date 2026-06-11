@@ -57,6 +57,10 @@ export class Fallback2D {
     container.style.background = 'linear-gradient(180deg, #0a0a2e 0%, #1a1a4e 50%, #2a1a4a 100%)';
     container.style.overflow = 'hidden';
     container.style.position = 'relative';
+    this.targetOpenness = 0.3;
+    this.currentOpenness = 0.3;
+    this.updatePetals();
+    this.animate();
   }
 
   private buildBackground(): void {

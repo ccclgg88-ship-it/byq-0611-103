@@ -131,6 +131,7 @@ export class LotusMeditationScene {
     }
 
     this.setupEventListeners();
+    this.animate();
   }
 
   private detectLowEndDevice(): boolean {
@@ -362,8 +363,10 @@ export class LotusMeditationScene {
       this.events.onProgress?.({ ...this.meditationState });
     }
 
-    let openness = 0;
-    if (this.animationMode === 'breathing') {
+    let openness = 0.3;
+    if (!this.meditationState.isRunning && !this.meditationState.isPaused) {
+      openness = 0.3;
+    } else if (this.animationMode === 'breathing') {
       const breathingState = this.breathingEngine.getState();
       openness = breathingState.expansion;
       this.events.onPhaseChange?.(breathingState.phase);

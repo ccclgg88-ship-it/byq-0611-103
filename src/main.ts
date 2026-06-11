@@ -90,8 +90,7 @@ class App {
     app.appendChild(this.sceneContainer);
 
     this.uiContainer = document.createElement('div');
-    this.uiContainer.style.cssText = 'position:absolute;inset:0;pointer-events:none;';
-    this.uiContainer.style.pointerEvents = 'none';
+    this.uiContainer.style.cssText = 'position:absolute;inset:0;';
     app.appendChild(this.uiContainer);
 
     this.loadingOverlay = document.createElement('div');

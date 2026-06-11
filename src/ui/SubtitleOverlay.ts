@@ -88,6 +88,16 @@ export class SubtitleOverlay {
     this.element.appendChild(inner);
 
     container.appendChild(this.element);
+    this.showWelcome();
+  }
+
+  private showWelcome(): void {
+    const inner = this.element.querySelector('.subtitle-text') as HTMLElement;
+    if (inner) {
+      inner.textContent = '点击 ▶ 开始您的冥想之旅';
+      inner.style.opacity = '0.85';
+      inner.style.transform = 'translateY(0)';
+    }
   }
 
   public start(): void {
