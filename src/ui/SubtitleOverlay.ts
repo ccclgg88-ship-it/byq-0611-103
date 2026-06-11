@@ -57,14 +57,14 @@ export class SubtitleOverlay {
     this.element = document.createElement('div');
     this.element.style.cssText = `
       position: absolute;
-      bottom: 80px;
+      bottom: 220px;
       left: 50%;
       transform: translateX(-50%);
       width: 90%;
       max-width: 800px;
       text-align: center;
       pointer-events: none;
-      z-index: 10;
+      z-index: 15;
       transition: opacity 0.3s ease;
     `;
 

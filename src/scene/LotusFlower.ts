@@ -18,10 +18,10 @@ export const DEFAULT_LOTUS_CONFIG: LotusFlowerConfig = {
   petalCount: 12,
   layers: 3,
   petalWidth: 0.6,
-  petalHeight: 1.8,
+  petalHeight: 1.6,
   petalThickness: 0.02,
-  maxOpenAngle: Math.PI * 0.85,
-  closedAngle: Math.PI * 0.15,
+  maxOpenAngle: Math.PI * 0.55,
+  closedAngle: Math.PI * 1.35,
   color: 0xffb7d5,
   innerColor: 0xff6b9d,
   cubicBezier: [0.4, 0, 0.2, 1],
@@ -31,6 +31,7 @@ export class LotusFlower {
   public group: THREE.Group;
   private config: LotusFlowerConfig;
   private petals: THREE.Mesh[] = [];
+  private petalPivots: THREE.Group[] = [];
   private petalInitialRotations: { x: number; y: number; z: number }[] = [];
   private currentOpenness: number = 0;
   private targetOpenness: number = 0;
@@ -84,7 +85,6 @@ export class LotusFlower {
     const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
     geometry.translate(0, 0, -petalThickness / 2);
     geometry.rotateX(Math.PI / 2);
-    geometry.translate(0, 0, -height * 0.15);
     geometry.computeVertexNormals();
 
     return geometry;
@@ -120,27 +120,30 @@ export class LotusFlower {
       for (let i = 0; i < layerPetalCount; i++) {
         const angle = (i / layerPetalCount) * Math.PI * 2 + layerRotationOffset;
         const material = this.createPetalMaterial(layer);
-        const petal = new THREE.Mesh(petalGeometry, material);
 
+        const petalGroup = new THREE.Group();
+        petalGroup.rotation.y = angle;
+        petalGroup.position.y = layerHeight + 0.05;
+
+        const petal = new THREE.Mesh(petalGeometry, material);
         petal.scale.set(layerScale, layerScale * 0.85, layerScale);
 
-        const baseTilt = closedAngle + layer * 0.1;
+        const baseTilt = closedAngle - layer * 0.12;
         petal.rotation.x = baseTilt;
-        petal.rotation.y = angle;
-
-        petal.position.y = layerHeight;
 
         petal.castShadow = true;
         petal.receiveShadow = true;
         petal.name = `Petal_L${layer}_${i}`;
 
+        petalGroup.add(petal);
         this.petals.push(petal);
         this.petalInitialRotations.push({
           x: baseTilt,
-          y: angle,
+          y: 0,
           z: 0,
         });
-        this.group.add(petal);
+        this.petalPivots.push(petalGroup);
+        this.group.add(petalGroup);
       }
     }
 
@@ -183,12 +186,12 @@ export class LotusFlower {
 
     const easedT = this.easeFn(this.currentOpenness);
     const { maxOpenAngle, closedAngle } = this.config;
-    const totalAngle = maxOpenAngle - closedAngle;
+    const totalAngle = closedAngle - maxOpenAngle;
 
     for (let i = 0; i < this.petals.length; i++) {
       const petal = this.petals[i];
       const initial = this.petalInitialRotations[i];
-      petal.rotation.x = initial.x + easedT * totalAngle;
+      petal.rotation.x = initial.x - easedT * totalAngle;
     }
 
     const center = this.group.getObjectByName('LotusCenter') as THREE.Mesh;

@@ -10,38 +10,25 @@ export class MountMeruBackground {
   }
 
   private build(sceneSize: number): void {
-    const skyGeometry = new THREE.SphereGeometry(sceneSize, 64, 64);
-    const skyMaterial = new THREE.ShaderMaterial({
+    const skyGeometry = new THREE.SphereGeometry(sceneSize * 2, 64, 64);
+    const skyCanvas = document.createElement('canvas');
+    skyCanvas.width = 512;
+    skyCanvas.height = 512;
+    const skyCtx = skyCanvas.getContext('2d')!;
+    const skyGradient = skyCtx.createLinearGradient(0, 0, 0, 512);
+    skyGradient.addColorStop(0, '#0a0a2e');
+    skyGradient.addColorStop(0.45, '#2a1a5a');
+    skyGradient.addColorStop(0.5, '#4a3266');
+    skyGradient.addColorStop(0.55, '#3a2a60');
+    skyGradient.addColorStop(1, '#1a0a3a');
+    skyCtx.fillStyle = skyGradient;
+    skyCtx.fillRect(0, 0, 512, 512);
+    const skyTexture = new THREE.CanvasTexture(skyCanvas);
+    skyTexture.colorSpace = THREE.SRGBColorSpace;
+    const skyMaterial = new THREE.MeshBasicMaterial({
+      map: skyTexture,
       side: THREE.BackSide,
-      uniforms: {
-        topColor: { value: new THREE.Color(0x0a0a2e) },
-        bottomColor: { value: new THREE.Color(0x1a1a4e) },
-        horizonColor: { value: new THREE.Color(0x4a3266) },
-      },
-      vertexShader: `
-        varying vec3 vWorldPosition;
-        void main() {
-          vec4 worldPosition = modelMatrix * vec4(position, 1.0);
-          vWorldPosition = worldPosition.xyz;
-          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-        }
-      `,
-      fragmentShader: `
-        uniform vec3 topColor;
-        uniform vec3 bottomColor;
-        uniform vec3 horizonColor;
-        varying vec3 vWorldPosition;
-        void main() {
-          float h = normalize(vWorldPosition).y;
-          vec3 color;
-          if (h > 0.0) {
-            color = mix(horizonColor, topColor, smoothstep(0.0, 0.6, h));
-          } else {
-            color = mix(horizonColor, bottomColor, smoothstep(0.0, -0.3, h));
-          }
-          gl_FragColor = vec4(color, 1.0);
-        }
-      `,
+      depthWrite: false,
     });
     const sky = new THREE.Mesh(skyGeometry, skyMaterial);
     sky.name = 'SkyDome';
